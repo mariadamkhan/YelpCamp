@@ -3,6 +3,7 @@ const app = express();
 const path = require('path');
 const mongoose = require('mongoose');
 const CampGround = require('./models/campground')
+const methodOverride = require("method-override");
 
 mongoose
   .connect("mongodb://localhost:27017/yelp-camp")
@@ -20,6 +21,7 @@ db.on("error", console.error.bind(console, "connection error"));
 db.once("open", ()=> {
     console.log("Database Connnected")
 });
+
 // ****EXPLANATION FOR THE ABOVE - LOGIC TO CHECK IF THERE IS A CONNECTION ERROR
 // ** On **
 // In this case, if there is an error, the on callback would run which would result 
@@ -33,18 +35,61 @@ db.once("open", ()=> {
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "/views"));
 
+// ** MIDDLEWARE **
+//To parse form data in POST request body:
+app.use(express.urlencoded({ extended: true })); 
+app.use(methodOverride("_method")); 
+
 
 app.get('/', (req, res)=> {
     res.render("home")
 })
 
-app.get('/makecampground', async(req, res)=> {
-    const camp = new CampGround({
-        title: 'My Backyards'
-    });
-    await camp.save();
-    res.send(camp)
+// *** GET INDEX ROUTE ***
+app.get("/campgrounds", async ( req, res)=> {
+    const campgrounds = await CampGround.find({})
+    res.render("campgrounds/index", {campgrounds})
+});
+
+// *** GET NEW FORM ROUTE FOR A POST ***
+app.get("/campgrounds/new", (req, res)=> {
+    res.render('campgrounds/new')
 })
+
+// *** POST NEW CAMPGROUND ***
+app.post("/campgrounds", async (req, res)=> {
+    const campground = new CampGround(req.body.campground);
+    await campground.save();
+    res.redirect(`/campgrounds/${campground._id}`)
+} )
+
+//*** GET SHOW ROUTE ***
+app.get("/campgrounds/:id", async (req, res) => {
+    const {id} = req.params;
+    const campground = await CampGround.findById(id);
+    res.render('campgrounds/show', {campground});
+})
+
+// *** GET EDIT FORM ROUTE FOR A PUT REQUEST
+app.get("/campgrounds/:id/edit", async(req, res) => {
+    const {id} = req.params;
+    const campground = await CampGround.findById(id);
+    res.render("campgrounds/edit", {campground})
+})
+
+// *** PUT EDIT CAMPGROUND
+app.put("/campgrounds/:id", async(req, res) => {
+    const {id} = req.params;
+    const campground = await CampGround.findByIdAndUpdate(id, {...req.body.campground});
+    res.redirect(`/campgrounds/${campground._id}`)
+})
+
+app.delete("/campgrounds/:id", async (req, res) => {
+    const deleted = await CampGround.findByIdAndDelete(req.params.id)
+    res.redirect("/campgrounds")
+
+})
+
 
 app.listen(3000, ()=> {
     console.log("LISTENING ON PORT 3000")
