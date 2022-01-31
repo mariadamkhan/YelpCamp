@@ -2,8 +2,10 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const mongoose = require('mongoose');
-const CampGround = require('./models/campground')
+const ejsMate = require('ejs-mate')
 const methodOverride = require("method-override");
+const CampGround = require('./models/campground')
+
 
 mongoose
   .connect("mongodb://localhost:27017/yelp-camp")
@@ -32,6 +34,7 @@ db.once("open", ()=> {
 // In our case, the function will be called when the connection to mongodb is open 
 // i.e. the connection is successful.
 // setting up ejs and an absolute path 
+app.engine('ejs', ejsMate ) //one of many enhines used to parse and make sense of ejs. We are sayong use this instead of the default.
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "/views"));
 
@@ -39,11 +42,6 @@ app.set("views", path.join(__dirname, "/views"));
 //To parse form data in POST request body:
 app.use(express.urlencoded({ extended: true })); 
 app.use(methodOverride("_method")); 
-
-
-app.get('/', (req, res)=> {
-    res.render("home")
-})
 
 // *** GET INDEX ROUTE ***
 app.get("/campgrounds", async ( req, res)=> {
