@@ -26,20 +26,27 @@ const sample = (array) => array[Math.floor(Math.random() * array.length)];
 
 // fucntion that loops over 50 times and with the help of a random number b/w 1-1000 choses
 // a city and its state as a location
+
 const seedDB = async () => {
   await CampGround.deleteMany({});
   for (let i = 0; i < 50; i++) {
     const random1000 = Math.floor(Math.random() * 1000);
+    const price= +(Math.random() * 80).toFixed(2)
     const camp = new CampGround({
       location: `${cities[random1000].city}, ${cities[random1000].state}`,
       title: `${sample(descriptors)} ${sample(places)}`, //executing the sample function above to form a name
       // by choosing a random indicy of a descriptors array and
       // a places array and then interpelating to form one singular name
+      image: "https://source.unsplash.com/collection/786923", //we will be getting a different image every time for the same campground
+      description:
+        "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Labore praesentium repudiandae perspiciatis, ea, officia reprehenderit optio, id laboriosam ratione culpa nihil voluptate quod enim sapiente minus quia error voluptas ipsum.",
+        price
     });
     await camp.save();
   }
 };
 
-seedDB().then(()=> { //accepts a then because its an async function.
-    mongoose.connection.close() //we close your database connection once we have populated our DB. 
+seedDB().then(() => {
+  //accepts a then because its an async function.
+  mongoose.connection.close(); //we close your database connection once we have populated our DB.
 });
