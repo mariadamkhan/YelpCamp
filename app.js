@@ -2,9 +2,12 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const mongoose = require('mongoose');
-const ejsMate = require('ejs-mate')
+const ejsMate = require('ejs-mate');
+const {campgroundSchema } = require('./schemas.js'); //destructuring because we plan on having multiple schemas.
+const catchAsync = require ('./utilities/catchAsync');
+const ExpressError = require('./utilities/ExpressError');
 const methodOverride = require("method-override");
-const CampGround = require('./models/campground')
+const CampGround = require('./models/campground');
 
 
 mongoose
@@ -43,54 +46,82 @@ app.set("views", path.join(__dirname, "/views"));
 app.use(express.urlencoded({ extended: true })); 
 app.use(methodOverride("_method")); 
 
+const validateCampground = (req, res, next) => {
+    const {error} = campgroundSchema.validate(req.body); //destructuring and pulling out the error. This is saying if there is an error, we are going to map over the error.details to make a single string message and pass it into the throw new error.
+  if(error){
+      const msg = error.details.map(el => el.message).join(',')
+      throw new ExpressError(msg, 400) //results.error.details is an array, we need to make it into a string becase we are using it as a message, so we need to map over it. End of video 446.
+  }else{
+      next(); //needs to call next to consider the second callback catchAsync. If it doesnt call next and instead sends something
+      //back then that callback catcAsync in our app.post & put here will never run.
+  }
+}
+
 app.get("/", (req, res)=> {
     res.render('campgrounds/home')
 })
 
 // *** GET INDEX ROUTE ***
-app.get("/campgrounds", async ( req, res)=> {
+app.get("/campgrounds", catchAsync(async ( req, res)=> {
     const campgrounds = await CampGround.find({})
     res.render("campgrounds/index", {campgrounds})
-});
+}));
 
 // *** GET NEW FORM ROUTE FOR A POST ***
 app.get("/campgrounds/new", (req, res)=> {
     res.render('campgrounds/new')
 })
 
+
+
 // *** POST NEW CAMPGROUND ***
-app.post("/campgrounds", async (req, res)=> {
-    const campground = new CampGround(req.body.campground);
-    await campground.save();
-    res.redirect(`/campgrounds/${campground._id}`)
-} )
+app.post("/campgrounds", validateCampground, catchAsync(async (req, res, next)=> {
+        const campground = new CampGround(req.body.campground);
+        await campground.save();
+        res.redirect(`/campgrounds/${campground._id}`)
+    
+}) )
 
 //*** GET SHOW ROUTE ***
-app.get("/campgrounds/:id", async (req, res) => {
+app.get("/campgrounds/:id", catchAsync(async (req, res) => {
     const {id} = req.params;
     const campground = await CampGround.findById(id);
     res.render('campgrounds/show', {campground});
-})
+}))
 
 // *** GET EDIT FORM ROUTE FOR A PUT REQUEST
-app.get("/campgrounds/:id/edit", async(req, res) => {
+app.get("/campgrounds/:id/edit", catchAsync(async(req, res) => {
     const {id} = req.params;
     const campground = await CampGround.findById(id);
     res.render("campgrounds/edit", {campground})
-})
+}))
 
 // *** PUT EDIT CAMPGROUND
-app.put("/campgrounds/:id", async(req, res) => {
+app.put("/campgrounds/:id", validateCampground,catchAsync(async(req, res) => {
     const {id} = req.params;
     const campground = await CampGround.findByIdAndUpdate(id, {...req.body.campground});
     res.redirect(`/campgrounds/${campground._id}`)
-})
+}))
 
-app.delete("/campgrounds/:id", async (req, res) => {
+app.delete("/campgrounds/:id", catchAsync(async (req, res) => {
     const deleted = await CampGround.findByIdAndDelete(req.params.id)
     res.redirect("/campgrounds")
 
+}))
+
+app.all('*', (req, res, next)=> { //for every request, star for every path, call this callback.
+    next(new ExpressError('Page Not Found', 404)) //this will only run if nothing else has matched first. Order is important.
+} ) 
+
+
+app.use((err, req, res, next)=> {
+    const {statusCode= 500} = err;
+    if(!err.message) err.message = 'Something went wrong';
+    res.status(statusCode).render('error', {err});
+
 })
+
+
 
 
 app.listen(3000, ()=> {
