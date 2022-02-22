@@ -1,7 +1,7 @@
 <!-- this will be our basic boiler plate for every page -->
-<!-- the body will be passed in from another template, we are injecting content intp this layout -->
+<!-- the body will be passed in from another template, we are injecting content into this layout -->
 <!-- great because we can include our style sheets, JS, whatever else, and have a common layout. 
-we can include the nav bar footer, etc only once - here -->
+we can include the navbar, footer, etc only once - here -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -36,7 +36,7 @@ we can include the nav bar footer, etc only once - here -->
     // Fetch all the forms we want to apply custom Bootstrap validation styles to
     const forms = document.querySelectorAll('.validated-form')
   
-    // Loop over them and prevent submission
+    // Loop over them and prevent submission- code from bootstrap
     Array.from(forms)
       .forEach(function (form) {
         form.addEventListener('submit', function (event) {
