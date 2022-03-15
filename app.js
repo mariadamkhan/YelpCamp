@@ -3,12 +3,14 @@ const app = express();
 const path = require('path');
 const mongoose = require('mongoose');
 const ejsMate = require('ejs-mate');
+const session = require('express-session');
+const flash = require('connect-flash');
 const ExpressError = require('./utilities/ExpressError');
 const methodOverride = require("method-override");
 
+
 const campgrounds = require('./routes/campgrounds');
 const reviews = require('./routes/reviews');
-
 
 mongoose
   .connect('mongodb://localhost:27017/yelp-camp')
@@ -37,14 +39,35 @@ db.once("open", ()=> {
 // In our case, the function will be called when the connection to mongodb is open 
 // i.e. the connection is successful.
 // setting up ejs and an absolute path 
-app.engine('ejs', ejsMate ) //one of many engines used to parse and make sense of ejs. We are saying use this instead of the default.
+app.engine('ejs', ejsMate); //one of many engines used to parse and make sense of ejs. We are saying use this instead of the default.
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, '/views'));
+app.set('views', path.join(__dirname, 'views'));
 
 // ** MIDDLEWARE **
 //To parse form data in POST request body:
 app.use(express.urlencoded({ extended: true })); 
-app.use(methodOverride("_method")); 
+app.use(methodOverride('_method'));
+app.use(express.static(path.join(__dirname, 'public')));
+const sessionConfig = {
+    secret: 'thisshouldbeabettersecret',
+    resave:false,
+    saveUninitialized:true,
+    cookie: {
+        httpOnly: true, //extra security
+        expires : Date.now() + 1000 * 60 * 60 * 24 * 7, //saying expire in a week
+        maxAge: 1000 * 60 * 60 * 24 * 7, //dont have to set up an expiration, otherwise someone could stay logged in forever.
+    }
+};
+
+app.use(session(sessionConfig));
+app.use(flash());
+
+app.use((req, res, next)=> {
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    next();
+})// on every single request we're going to take whatever is in the flash under success and have access to it under our locals under the key success
+//this way we dont have to pass this to the redirected page.
 
 app.use('/campgrounds', campgrounds);
 app.use('/campgrounds/:id/reviews', reviews);
