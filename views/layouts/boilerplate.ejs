@@ -4,6 +4,7 @@
 we can include the navbar, footer, etc only once - here -->
 <!DOCTYPE html>
 <html lang="en">
+
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -15,8 +16,10 @@ we can include the navbar, footer, etc only once - here -->
       crossorigin="anonymous"
     />
   </head>
+
   <body class="d-flex flex-column vh-100">
     <%- include('../partials/navbar') %>
+    
     <main class="container mt-5">
       <%- include('../partials/flash') %>
       <%- body %></main>

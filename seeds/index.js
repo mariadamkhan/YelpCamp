@@ -33,6 +33,7 @@ const seedDB = async () => {
     const random1000 = Math.floor(Math.random() * 1000);
     const price= +(Math.random() * 80).toFixed(2)
     const camp = new CampGround({
+      author: '62311314a3b35f17ab74c5a0',
       location: `${cities[random1000].city}, ${cities[random1000].state}`,
       title: `${sample(descriptors)} ${sample(places)}`, //executing the sample function above to form a name
       // by choosing a random indicy of a descriptors array and

@@ -3,7 +3,11 @@ const Schema = mongoose.Schema;
 
 const reviewSchema = new Schema ({
     body:String,
-    rating:Number
+    rating:Number,
+    author: {
+        type: Schema.Types.ObjectId,
+        ref:'User'
+    }
 });
 //this is a one to many relationship, have to connect our review to a campground
 //we are going to embed an array of object ids in each campground
