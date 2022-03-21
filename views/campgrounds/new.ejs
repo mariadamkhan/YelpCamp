@@ -3,7 +3,7 @@
   <h1 class="text-center">New Campground</h1>
   <div class="col-6 offset-3">
 
-    <form action="/campgrounds/" method="POST" novalidate class="validated-form"> <!--no validate will prevent the default browser validation and allow for boostrap validation to take over-->
+    <form action="/campgrounds/" method="POST" novalidate class="validated-form" enctype="multipart/form-data"> <!--no validate will prevent the default browser validation and allow for boostrap validation to take over-->
       <div  class=mb-3>
         <label class="form-label" for="title">Title</label>
         <input class="form-control" type="text" id="title" name="campground[title]" required/> <!--client side validation with required and bootstrap class validated-form-->
