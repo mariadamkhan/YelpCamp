@@ -2,10 +2,26 @@ const mongoose = require('mongoose');
 const Review = require('./review');
 const Schema = mongoose.Schema; //shortcut, we will be referencing mongoose.Schema alot in the future.
 
-// created the Schema
+//creating a new image schema to create a virtual on images
+const ImageSchema = new Schema({
+    url: String,
+    filename: String
+});
+
+ImageSchema.virtual('thumbnail').get(function (){ //images virtual to create smaller thumbnails for the edit thumbnails. Video 544.
+    //this will refer to each individual file name. replace replaces only the first match of instance.
+    return this.url.replace('upload', '/upload/w_200');
+});
+
+//**ALTERNATIVE SOLUTION WITHOUT CREATING AN IMAGESCHEMA- SUGGESTED BY ANOTHER STUDENT */
+// CampgroundSchema.path('images').schema.virtual('thumbnail').get(function() {
+//     return this.url.replace('/upload/', '/upload/w_200/');
+// });
+
+// created Campgrond Schema
 const CampgroundSchema = new Schema({
     title: String,
-    image: String,
+    images: [ImageSchema],
     price: Number,
     description: String,
     location: String,

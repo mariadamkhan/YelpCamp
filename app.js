@@ -1,3 +1,8 @@
+if(process.env.NODE_ENV !== "production"){ //if we are running in development mode require dotenv which will take the variables in the file and add them to process.env in node app. In production we dont do this.
+    require('dotenv').config(); //have access to our .env cause of this line. Running in development by default.
+};
+
+console.log(process.env.secret);
 const express = require('express');
 const app = express();
 const path = require('path');
