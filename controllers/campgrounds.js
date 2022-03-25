@@ -1,7 +1,9 @@
 const CampGround = require('../models/campground');
 const Review = require('../models/review');
 const {cloudinary} = require('../cloudinary');
-
+const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
+const mapboxToken = process.env.MAPBOX_TOKEN;
+const geocoder = mbxGeocoding({ accessToken: mapboxToken }) //this houses two methods we want forward and reverse geocoding.
 module.exports.index = async ( req, res)=> {
     const campgrounds = await CampGround.find({})
     res.render("campgrounds/index", {campgrounds})
@@ -12,12 +14,18 @@ module.exports.renderNewForm = (req, res) => {
 };
 
 module.exports.createCampground = async (req, res, next)=> {
+    const geoData =  await geocoder.forwardGeocode({
+        query: req.body.campground.location,
+        limit: 1
+    }).send()
     const campground = new CampGround(req.body.campground); //if we've made it past this point we know there is a user- thanks to isLoggedIn. we know there is a currentUser or a req.user thanks to passport. In our templates
     //we have access to our local variable currentUser we set up in app.js.
+    campground.geometry= geoData.body.features[0].geometry;
     campground.images = req.files.map(f => ({url: f.path, filename: f.filename})); // map over the array thats been added to req.files thanks to multer, and it includes a whole bunch of info
     //just take the path and the file name and make a new object for each one and put that in an array. So we end up with an array with images eah with these two properties. We add that on to campground and then we save and re-direct.
     campground.author = req.user._id //we take the user id and save it as an author on that newly created campground. When we make a new camground before we save we assign an author.
     await campground.save();
+    console.log(campground)
     req.flash('success', 'Successfully made a new campground');
     res.redirect(`/campgrounds/${campground._id}`)
 };

@@ -4,7 +4,7 @@ const campgrounds = require('../controllers/campgrounds');
 const catchAsync = require ('../utilities/catchAsync');
 const {isLoggedIn, validateCampground, isAuthor} = require('../middleware');
 const multer = require('multer');
-const {storage} = require('../cloudinary');//dont need to specify inex b/c Node automatically looks for an index in a folder
+const {storage} = require('../cloudinary');//dont need to specify index b/c Node automatically looks for an index in a folder
 const upload = multer({storage}); // used to parse uploaded files
 router.route('/')
     .get( catchAsync(campgrounds.index)) // *** GET INDEX ROUTE ***
