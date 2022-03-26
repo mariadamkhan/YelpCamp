@@ -18,6 +18,7 @@ ImageSchema.virtual('thumbnail').get(function (){ //images virtual to create sma
 //     return this.url.replace('/upload/', '/upload/w_200/');
 // });
 
+const opts = { toJSON: {virtuals: true}}; //this is in place for the campgroundSchema virtuals below. For the properties to be included in the campground object.
 // created Campgrond Schema
 const CampgroundSchema = new Schema({
     title: String,
@@ -46,7 +47,12 @@ const CampgroundSchema = new Schema({
             ref: 'Review' //referencing out review model
         }
     ]
-});
+}, opts);
+
+CampgroundSchema.virtual('properties.popUpMarkup').get(function (){ 
+return `<strong><a href='/campgrounds/${this._id}'>${this.title}</a></strong>` //this refers to each individual instance of a campground. Markup is dynamic 
+}); //are creating this virtual for the cluster map popups. have to follow the mapbox setup. They have their datat
+//comign from a properties object. we will now be able to access properties for our mapbox.
 
 //in our route for deleting a review we are using .findByIdAndDelete, this function 
 //triggers the middleware .findOneAndDelete
