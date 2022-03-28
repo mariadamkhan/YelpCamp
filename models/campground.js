@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Review = require('./review');
 const Schema = mongoose.Schema; //shortcut, we will be referencing mongoose.Schema alot in the future.
-
+const mongoosePaginate = require('mongoose-paginate-v2');
 //creating a new image schema to create a virtual on images
 const ImageSchema = new Schema({
     url: String,
@@ -67,6 +67,7 @@ CampgroundSchema.post('findOneAndDelete', async function(doc){ //we have taken t
         })
     }
 })
+CampgroundSchema.plugin(mongoosePaginate);
 
 
 //compiled the model and exported it at the same time.

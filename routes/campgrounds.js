@@ -6,6 +6,7 @@ const {isLoggedIn, validateCampground, isAuthor} = require('../middleware');
 const multer = require('multer');
 const {storage} = require('../cloudinary');//dont need to specify index b/c Node automatically looks for an index in a folder
 const upload = multer({storage}); // used to parse uploaded files
+
 router.route('/')
     .get( catchAsync(campgrounds.index)) // *** GET INDEX ROUTE ***
     .post( isLoggedIn, upload.array('image'), validateCampground, catchAsync(campgrounds.createCampground)); // *** POST NEW CAMPGROUND ***

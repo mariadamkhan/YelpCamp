@@ -17,13 +17,14 @@ we can include the navbar, footer, etc only once - here -->
     />
     <script src='https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js'></script> <!--mapbox -->
     <link href='https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css' rel='stylesheet' /> <!--mapbox -->
+    <link rel="stylesheet" href="/stylesheets/app.css">
 
   </head>
 
   <body class="d-flex flex-column vh-100">
     <%- include('../partials/navbar') %>
     
-    <main class="container mt-5">
+    <main >
       <%- include('../partials/flash') %>
       <%- body %></main>
     <%-include('../partials/footer') %>

@@ -4,6 +4,7 @@ const {cloudinary} = require('../cloudinary');
 const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
 const mapboxToken = process.env.MAPBOX_TOKEN;
 const geocoder = mbxGeocoding({ accessToken: mapboxToken }) //this houses two methods we want forward and reverse geocoding.
+
 module.exports.index = async ( req, res)=> {
     const campgrounds = await CampGround.find({})
     res.render("campgrounds/index", {campgrounds})

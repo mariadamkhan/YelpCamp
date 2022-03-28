@@ -1,0 +1,23 @@
+#cluster-map {
+    width: 100%;
+    height: 500px;
+}
+
+#map {
+    width: 100%;
+    height: 300px;
+}
+
+.icon{
+    width: 3rem;
+    margin-bottom: 1rem;
+}
+
+.add-campground{
+    display: flex;
+    justify-content: end;
+}
+
+.img {
+    width: 1.4rem;
+}
