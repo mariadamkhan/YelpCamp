@@ -5,10 +5,18 @@ const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
 const mapboxToken = process.env.MAPBOX_TOKEN;
 const geocoder = mbxGeocoding({ accessToken: mapboxToken }) //this houses two methods we want forward and reverse geocoding.
 
-module.exports.index = async ( req, res)=> {
-    const campgrounds = await CampGround.find({})
-    res.render("campgrounds/index", {campgrounds})
-};
+module.exports.index = async (req, res) => {
+    if (!req.query.page) {
+        const campgrounds = await CampGround.paginate({});
+        res.render('campgrounds/index', { campgrounds })
+    } else {
+        const { page } = req.query;
+        const campgrounds = await CampGround.paginate({}, {
+            page,
+        });
+        res.status(200).json(campgrounds);
+    }
+}
 
 module.exports.renderNewForm = (req, res) => {
     res.render('campgrounds/new')

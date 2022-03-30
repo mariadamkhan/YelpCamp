@@ -57,8 +57,8 @@ module.exports.descriptors = [
     },
     {
       url:
-        "https://res.cloudinary.com/du4fe9ocz/image/upload/v1647911568/YelpCamp/tivkqaovuy4eyqloni3h.jpg",
-      filename: "YelpCamp/tivkqaovuy4eyqloni3h",
+        "https://res.cloudinary.com/du4fe9ocz/image/upload/v1648609760/YelpCamp/wierqckm4fzyrda0tsux.jpg",
+      filename: "YelpCamp/wierqckm4fzyrda0tsux",
     },
     {
       url:
