@@ -14,6 +14,7 @@ const methodOverride = require("method-override");
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
 const User = require('./models/user');
+
 const mongoSanitize = require('express-mongo-sanitize'); //security package mongo injection
 const helmet = require('helmet');
 
@@ -23,8 +24,12 @@ const campgroundRoutes = require('./routes/campgrounds');
 const reviewRoutes = require('./routes/reviews');
 const userRoutes = require('./routes/users');
 
+const MongoDBStore = require('connect-mongo')(session);
+const dbUrl = process.env.DB_URL || 'mongodb://localhost:27017/yelp-camp';
+
+//'mongodb://localhost:27017/yelp-camp' what we had before in the code bellow. On line 29. Before connecting to mongo Atlas.
 mongoose
-  .connect('mongodb://localhost:27017/yelp-camp')
+  .connect(dbUrl)
 // *****COULD HAVE USED THIS LOGIC BELOW TO CHECK FOR A CONNECTION ERROR,
 // ******BUT USED THE ON/ONCE THIS TIME. CAN READ MORE ON IT IN MONGOOSE DOCS
 //   .then(() => {
@@ -62,8 +67,20 @@ app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(mongoSanitize()); //mongo injection -- security
 
+
+const secret = process.env.SECRET || 'thisshouldbeabettersecret'
+const store = new MongoDBStore({ //makes our store. Using local DB at the moment 
+    url: dbUrl,
+    secret,
+    touchAfter: 24 * 60 * 60
+});
+
+store.on('error', function(e){
+    console.log("session store error", e)
+})
 const sessionConfig = {
-    secret: 'thisshouldbeabettersecret',
+    store,
+    secret,
     resave:false,
     saveUninitialized:true,
     cookie: {
@@ -146,13 +163,6 @@ app.use((req, res, next)=> {
 })// on every single request we're going to take whatever is in the flash under success and have access to it under our locals under the key success
 //this way we dont have to pass this to the redirected page.
 
-
-app.get('/fakeuser', async (req,res)=> {
-    const user = new User({email: 'colt@gmail.com', username: 'colttttt' }) //dont pass in the passport b/c we will be suing the register method.
-    const newUser = await User.register(user, 'chicken');//available thanks to the passport-local-monngoose. we pass in a newly created user object and the password, and has that password
-    res.send(newUser);
-})
-//does not use bcrypt
 
 //** ROUTES */
 app.use('/campgrounds', campgroundRoutes);
