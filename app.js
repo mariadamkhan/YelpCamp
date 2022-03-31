@@ -2,7 +2,6 @@ if(process.env.NODE_ENV !== "production"){ //if we are running in development mo
     require('dotenv').config(); //have access to our .env cause of this line. Running in development by default.
 };
 
-console.log(process.env.secret);
 const express = require('express');
 const app = express();
 const path = require('path');
@@ -15,6 +14,8 @@ const methodOverride = require("method-override");
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
 const User = require('./models/user');
+const mongoSanitize = require('express-mongo-sanitize'); //security package mongo injection
+const helmet = require('helmet');
 
 
 
@@ -59,12 +60,16 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: true })); 
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(mongoSanitize()); //mongo injection -- security
+
 const sessionConfig = {
     secret: 'thisshouldbeabettersecret',
     resave:false,
     saveUninitialized:true,
     cookie: {
+        name: 'session',
         httpOnly: true, //extra security
+        // secure: true,
         expires : Date.now() + 1000 * 60 * 60 * 24 * 7, //saying expire in a week
         maxAge: 1000 * 60 * 60 * 24 * 7, //dont have to set up an expiration, otherwise someone could stay logged in forever.
     }
@@ -72,6 +77,54 @@ const sessionConfig = {
 
 app.use(session(sessionConfig));
 app.use(flash());
+
+//** HELMET SECURITY*/
+const scriptSrcUrls = [
+    "https://stackpath.bootstrapcdn.com/",
+    "https://api.tiles.mapbox.com/",
+    "https://api.mapbox.com/",
+    "https://kit.fontawesome.com/",
+    "https://cdnjs.cloudflare.com/",
+    "https://cdn.jsdelivr.net",
+    "https://code.jquery.com"
+];
+const styleSrcUrls = [
+    "https://kit-free.fontawesome.com/",
+    "https://stackpath.bootstrapcdn.com/",
+    "https://api.mapbox.com/",
+    "https://api.tiles.mapbox.com/",
+    "https://fonts.googleapis.com/",
+    "https://use.fontawesome.com/",
+    "https://cdn.jsdelivr.net"
+];
+const connectSrcUrls = [
+    "https://api.mapbox.com/",
+    "https://a.tiles.mapbox.com/",
+    "https://b.tiles.mapbox.com/",
+    "https://events.mapbox.com/",
+];
+const fontSrcUrls = [];
+app.use(
+    helmet.contentSecurityPolicy({
+        directives: {
+            defaultSrc: [],
+            connectSrc: ["'self'", ...connectSrcUrls],
+            scriptSrc: ["'unsafe-inline'", "'self'", ...scriptSrcUrls],
+            styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+            workerSrc: ["'self'", "blob:"],
+            objectSrc: [],
+            imgSrc: [
+                "'self'",
+                "blob:",
+                "data:",
+                "https://res.cloudinary.com/du4fe9ocz/", //SHOULD MATCH YOUR CLOUDINARY ACCOUNT! 
+                "https://images.unsplash.com/",
+            ],
+            fontSrc: ["'self'", ...fontSrcUrls],
+        },
+    })
+);
+
 
 //** PASSPORT INITIALIZATION AND AUTHENTICATION */
 app.use(passport.initialize());

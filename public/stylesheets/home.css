@@ -34,3 +34,25 @@ body {
   color: #333;
   text-shadow: none;
 }
+
+@media (max-width: 768px) {
+  .nav-link{
+    font-size: 0.75rem;
+  }
+  .nav-link.active{
+    display: none;
+  }
+  .nav-link:nth-of-type(2) {
+    display: none;
+  }
+  .lead {
+    display: none;
+  }
+  .btn-secondary {
+    font-size: 1rem;
+    margin-top: 1rem;
+
+  }
+ 
+
+}
